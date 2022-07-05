@@ -1,6 +1,7 @@
 (() => {
   const buttonsContainer = document.getElementById('buttons');
   const equationElement = document.getElementById('equation');
+  const outputContainer = document.getElementById('output');
 
   function appendToEquation(part) {
     equationElement.value += part;
@@ -29,11 +30,18 @@
     return result;
   }
 
-  function evaluateEquation() {
-    const parts = (
+  function tokenizeEquation() {
+    return (
       equationElement.value
       .replaceAll(/([x\/+-])/g, ' $1 ')
       .split(' ')
+    );
+  }
+
+  function evaluateEquation() {
+    const parts = (
+      tokenizeEquation()
+      // TODO: use something other than parseInt
       .map(part => part.match(/[x+-/]/) ? part : parseInt(part))
     );
     return [
@@ -61,7 +69,21 @@
 
     const equals = addButton('=');
     equals.addEventListener('click', () => {
-      console.log(evaluateEquation());
+      const answer = evaluateEquation();
+      const calculation = document.createElement('div');
+      calculation.className = 'calculation';
+      calculation.innerHTML = `
+        <p class="input">${tokenizeEquation().join(' ')}</p>
+        <p class="result">${answer}</p>
+      `;
+      if (outputContainer.children.length) {
+        outputContainer.insertBefore(
+          calculation,
+          outputContainer.children[0],
+        );
+      } else {
+        outputContainer.appendChild(calculation);
+      }
     });
   }
 

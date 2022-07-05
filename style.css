@@ -1,9 +1,8 @@
 * {
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
+  font-family: monospace;
   background: #1e1e2e;
-  color: #ccc;
   box-sizing: border-box;
 }
 
@@ -25,6 +24,7 @@ button {
   border-radius: 5px;
   padding: 10px;
   width: 40px;
+  color: #ccc;
 }
 
 #controls {
@@ -36,18 +36,26 @@ input[type="text"] {
   border: 0;
   padding: 10px;
   border-bottom: 1px solid #666;
+  color: #ccc;
 }
 
 #output {
   padding: 0 70px;
+  height: calc(100vh - 84px);
+  overflow: auto;
 }
 
 .calculation {
   padding: 10px;
 }
 
+.calculation:first-child {
+  color: #2ece2e;
+}
+
 .calculation:not(:first-child) {
   border-top: 1px solid #666;
+  color: #666;
 }
 
 .input {
