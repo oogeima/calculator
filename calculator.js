@@ -30,19 +30,20 @@
     return result;
   }
 
-  function tokenizeEquation() {
+  function tokenizeEquation(equation) {
     return (
-      equationElement.value
+      equation
+      .replaceAll(' ', '')
       .replaceAll(/([x\/+-])/g, ' $1 ')
+      .trim()
       .split(' ')
     );
   }
 
   function evaluateEquation() {
     const parts = (
-      tokenizeEquation()
-      // TODO: use something other than parseInt
-      .map(part => part.match(/[x+-/]/) ? part : parseInt(part))
+      tokenizeEquation(equationElement.value)
+      .map(part => part.match(/[x+-/]/) ? part : parseNumber(part))
     );
     return [
       ['x', (a, b) => a * b],
@@ -73,7 +74,7 @@
       const calculation = document.createElement('div');
       calculation.className = 'calculation';
       calculation.innerHTML = `
-        <p class="input">${tokenizeEquation().join(' ')}</p>
+        <p class="input">${tokenizeEquation(equationElement.value).join(' ')}</p>
         <p class="result">${answer}</p>
       `;
       if (outputContainer.children.length) {
@@ -87,5 +88,48 @@
     });
   }
 
+  function parseNumber(string) {
+    if (string === '.') {
+      return null;
+    }
+    const match = string.match(/^[0-9]*\.?[0-9]*/)[0];
+    if (match === '') {
+      return null;
+    } else {
+      return parseFloat(string);
+    }
+  }
+
+  function isValidEquation(equation) {
+    const tokens = tokenizeEquation(equation);
+    let expectNumber = true;
+    console.log(tokens);
+    for (const token of tokens) {
+      console.log('wat..', token, parseNumber(token))
+      if (expectNumber && parseNumber(token) === null) {
+        return false;
+      }
+      if (!expectNumber && token.match(/[x/+-]/) === null) {
+        return false;
+      }
+      expectNumber = !expectNumber;
+    }
+    console.log(equation, 'is valid');
+    return true;
+  }
+
+  function initEquation() {
+    equationElement.addEventListener(
+      'keypress',
+      event => {
+        if (!isValidEquation(equationElement.value + event.key)) {
+          event.preventDefault();
+        }
+      },
+      false,
+    )
+  }
+
   addButtons();
+  initEquation();
 })();

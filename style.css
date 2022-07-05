@@ -37,6 +37,7 @@ input[type="text"] {
   padding: 10px;
   border-bottom: 1px solid #666;
   color: #ccc;
+  text-align: center;
 }
 
 #output {
