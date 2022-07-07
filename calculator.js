@@ -89,23 +89,19 @@
   }
 
   function parseNumber(string) {
-    if (string === '.') {
+    const empty = string === '';
+    const nonNumberCharacters = string.match(/[^0-9\.]/) !== null;
+    const moreThanOneDot = (string.match(/\./g) || []).length > 1;
+    if (empty || nonNumberCharacters || moreThanOneDot) {
       return null;
     }
-    const match = string.match(/^[0-9]*\.?[0-9]*/)[0];
-    if (match === '') {
-      return null;
-    } else {
-      return parseFloat(string);
-    }
+    return parseFloat(string);
   }
 
   function isValidEquation(equation) {
     const tokens = tokenizeEquation(equation);
     let expectNumber = true;
-    console.log(tokens);
     for (const token of tokens) {
-      console.log('wat..', token, parseNumber(token))
       if (expectNumber && parseNumber(token) === null) {
         return false;
       }
@@ -114,7 +110,6 @@
       }
       expectNumber = !expectNumber;
     }
-    console.log(equation, 'is valid');
     return true;
   }
 
