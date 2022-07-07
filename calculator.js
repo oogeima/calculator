@@ -160,6 +160,12 @@
       }
       expectNumber = !expectNumber;
     }
+    if (tokens.length >= 1 && !expectNumber && tokens.at(-1) === '.') {
+      return !checkComplete;
+    }
+    if (tokens.length >= 2 && expectNumber && tokens.at(-2) === '.') {
+      return false;
+    }
     return !checkComplete || !expectNumber;
   }
 
