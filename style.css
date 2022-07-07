@@ -66,3 +66,11 @@ input[type="text"] {
 .result {
   text-align: right;
 }
+
+.green-bg {
+  background-color: #1e6e1e;
+}
+
+.red-bg {
+  background-color: #8e1e1e;
+}

@@ -58,34 +58,45 @@
     )[0];
   }
 
+  function clear() {
+    equationElement.value = '';
+  }
+
+  function runEquals(event) {
+    const equals = event.currentTarget;
+    const answer = evaluateEquation();
+    const calculation = document.createElement('div');
+    calculation.className = 'calculation';
+    calculation.innerHTML = `
+        <p class="input">${tokenizeEquation(equationElement.value).join(' ')}</p>
+        <p class="result">${answer}</p>
+      `;
+    if (outputContainer.children.length) {
+      outputContainer.insertBefore(
+        calculation,
+        outputContainer.children[0],
+      );
+    } else {
+      outputContainer.appendChild(calculation);
+    }
+  }
+
+  function flash(element, className, duration) {
+    element.classList.add(className);
+    setTimeout(() => element.classList.remove(className), duration || 150);
+  }
+
   function addButtons() {
     const inputButtons = (
       Array(10).fill(1).map((_, i) => i)
       .concat(['.', '+', '-', 'x', '/'])
     );
     for (const number of inputButtons) {
-      const button = addButton(number);
-      button.addEventListener('click', () => appendToEquation(number));
+      addButton(number).addEventListener('click', () => appendToEquation(number));
     }
 
-    const equals = addButton('=');
-    equals.addEventListener('click', () => {
-      const answer = evaluateEquation();
-      const calculation = document.createElement('div');
-      calculation.className = 'calculation';
-      calculation.innerHTML = `
-        <p class="input">${tokenizeEquation(equationElement.value).join(' ')}</p>
-        <p class="result">${answer}</p>
-      `;
-      if (outputContainer.children.length) {
-        outputContainer.insertBefore(
-          calculation,
-          outputContainer.children[0],
-        );
-      } else {
-        outputContainer.appendChild(calculation);
-      }
-    });
+    addButton('=').addEventListener('click', runEquals);
+    addButton('C').addEventListener('click', clear);
   }
 
   function parseNumber(string) {
@@ -98,7 +109,7 @@
     return parseFloat(string);
   }
 
-  function isValidEquation(equation) {
+  function isValidEquation(equation, checkComplete) {
     const tokens = tokenizeEquation(equation);
     let expectNumber = true;
     for (const token of tokens) {
@@ -110,7 +121,7 @@
       }
       expectNumber = !expectNumber;
     }
-    return true;
+    return !checkComplete || !expectNumber;
   }
 
   function initEquation() {
