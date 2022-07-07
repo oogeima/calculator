@@ -1,9 +1,4 @@
 (() => {
-  /*
-   * TODO:
-   * divide by zero
-   * backspace
-   */
   const buttonsContainer = document.getElementById('buttons');
   const equationElement = document.getElementById('equation');
   const outputContainer = document.getElementById('output');
@@ -85,11 +80,16 @@
     }
 
     const answer = evaluateEquation();
+    const result = (
+      answer === Number.NEGATIVE_INFINITY || answer === Number.POSITIVE_INFINITY ? 
+      'ZOMG INFINITY!!!1!!'
+      : answer
+    );
     const calculation = document.createElement('div');
     calculation.className = 'calculation';
     calculation.innerHTML = `
         <p class="input">${tokenizeEquation(equationElement.value).join(' ')}</p>
-        <p class="result">${answer}</p>
+        <p class="result">${result}</p>
       `;
     if (outputContainer.children.length) {
       outputContainer.insertBefore(
@@ -122,6 +122,20 @@
     const clearButton = addButton('C');
     clearButton.addEventListener('click', clear);
     buttonMap['C'] = clearButton;
+
+    const backspaceButton = addButton('<');
+    backspaceButton.addEventListener('click', backspace);
+    buttonMap['<'] = backspaceButton;
+  }
+
+  function backspace() {
+    const equationLength = equationElement.value.length;
+    if (equationLength > 0) {
+      flash(buttonMap['<'], 'green-bg');
+      equationElement.value = equationElement.value.substr(0, equationLength - 1);
+    } else {
+      flash(buttonMap['<'], 'red-bg');
+    }
   }
 
   function parseNumber(string) {
@@ -151,12 +165,21 @@
 
   function initEquation() {
     equationElement.addEventListener(
+      'keydown',
+      event => {
+        if (event.key === 'Backspace') {
+          backspace();
+          event.preventDefault();
+        }
+      }
+    );
+    equationElement.addEventListener(
       'keypress',
       event => {
-        // handle backspace
-        console.log(event.key);
         if (event.key === 'c' || event.key === 'C') {
           clear();
+        } else if (event.key === '<') {
+          backspace();
         } else if (event.key === 'Enter' || event.key === '=') {
           runEquals();
         } else if (inputs.includes(String(event.key))) {
