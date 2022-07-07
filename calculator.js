@@ -1,10 +1,25 @@
 (() => {
+  /*
+   * TODO:
+   * divide by zero
+   * backspace
+   */
   const buttonsContainer = document.getElementById('buttons');
   const equationElement = document.getElementById('equation');
   const outputContainer = document.getElementById('output');
+  const inputs = (
+    Array(10).fill(1).map((_, i) => String(i))
+    .concat(['.', '+', '-', 'x', '/'])
+  );
+  const buttonMap = {};
 
   function appendToEquation(part) {
-    equationElement.value += part;
+    if (isValidEquation(equationElement.value + part)) {
+      flash(buttonMap[part], 'green-bg');
+      equationElement.value += part;
+    } else {
+      flash(buttonMap[part], 'red-bg');
+    }
   }
 
   function addButton(content) {
@@ -59,11 +74,16 @@
   }
 
   function clear() {
+    flash(buttonMap['C'], 'green-bg');
     equationElement.value = '';
   }
 
-  function runEquals(event) {
-    const equals = event.currentTarget;
+  function runEquals() {
+    if (!isValidEquation(equationElement.value, true)) {
+      flash(buttonMap['='], 'red-bg');
+      return;
+    }
+
     const answer = evaluateEquation();
     const calculation = document.createElement('div');
     calculation.className = 'calculation';
@@ -79,6 +99,8 @@
     } else {
       outputContainer.appendChild(calculation);
     }
+    clear();
+    flash(buttonMap['='], 'green-bg');
   }
 
   function flash(element, className, duration) {
@@ -87,16 +109,19 @@
   }
 
   function addButtons() {
-    const inputButtons = (
-      Array(10).fill(1).map((_, i) => i)
-      .concat(['.', '+', '-', 'x', '/'])
-    );
-    for (const number of inputButtons) {
-      addButton(number).addEventListener('click', () => appendToEquation(number));
+    for (const label of inputs) {
+      const button = addButton(label);
+      button.addEventListener('click', () => appendToEquation(label));
+      buttonMap[label] = button;
     }
 
-    addButton('=').addEventListener('click', runEquals);
-    addButton('C').addEventListener('click', clear);
+    const equals = addButton('=');
+    equals.addEventListener('click', runEquals);
+    buttonMap['='] = equals;
+
+    const clearButton = addButton('C');
+    clearButton.addEventListener('click', clear);
+    buttonMap['C'] = clearButton;
   }
 
   function parseNumber(string) {
@@ -128,9 +153,16 @@
     equationElement.addEventListener(
       'keypress',
       event => {
-        if (!isValidEquation(equationElement.value + event.key)) {
-          event.preventDefault();
+        // handle backspace
+        console.log(event.key);
+        if (event.key === 'c' || event.key === 'C') {
+          clear();
+        } else if (event.key === 'Enter' || event.key === '=') {
+          runEquals();
+        } else if (inputs.includes(String(event.key))) {
+          appendToEquation(event.key);
         }
+        event.preventDefault();
       },
       false,
     )
