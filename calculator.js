@@ -51,9 +51,10 @@
   }
 
   function evaluateEquation() {
+    const operators = new Set(['x', '+', '-', '/']);
     const parts = (
       tokenizeEquation(equationElement.value)
-      .map(part => part.match(/[x+-/]/) ? part : parseNumber(part))
+      .map(part => operators.has(part) ? part : parseNumber(part))
     );
     return [
       ['x', (a, b) => a * b],
